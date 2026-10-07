@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KnotLab: pick the right knot</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f6f4ef;color:#2c2620;min-height:100vh;padding:24px 14px;display:flex;justify-content:center}
+main{width:100%;max-width:540px}
+h1{font-size:22px;margin-bottom:2px}
+.sub{color:#7a7060;font-size:13px;margin-bottom:18px}
+.card{background:#fffdf8;border-radius:14px;box-shadow:0 6px 24px rgba(80,60,30,.08);padding:20px;margin-bottom:16px}
+label{font-size:12px;font-weight:600;color:#8a7d68;display:block;margin:10px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+input,select{width:100%;padding:10px 12px;border:1.5px solid #ddd3c2;border-radius:9px;font-size:16px;font-family:inherit;background:#fff}
+input:focus,select:focus{outline:none;border-color:#a97f3f}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{padding:7px 12px;border-radius:999px;border:1.5px solid #ddd3c2;background:#fffdf8;font-size:13px;cursor:pointer;color:#6b5320}
+.chip:hover{border-color:#a97f3f;background:#f7efdd}
+.result{margin-top:14px;padding:14px;border-radius:10px;background:#f7efdd;display:none}
+.result.show{display:block}
+.big{font-size:18px;font-weight:700;color:#7a5210}
+.kv{font-size:13px;color:#5c5240;margin-top:4px;line-height:1.5}
+.row2{display:flex;gap:10px}.row2>div{flex:1}
+a{color:#8a5f1c;text-decoration:none}
+footer{font-size:12px;color:#9a8d78;text-align:center;margin-top:6px}
+table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+td,th{padding:6px 4px;text-align:left;border-bottom:1px solid #e8dfce}
+</style>
+</head>
+<body>
+<main>
+<h1>KnotLab</h1>
+<p class="sub">Find the right knot and what it safely holds</p>
+<div class="card">
+<label for="task">What are you doing?</label>
+<input id="task" placeholder="e.g. climbing tie in, tent guy line, lash cargo" autocomplete="off">
+<div class="chips" id="chips"></div>
+<div class="result" id="rec"></div>
+</div>
+<div class="card">
+<label>Working load calculator</label>
+<div class="row2">
+<div><label for="mbs">Rope MBS (kg)</label><input id="mbs" value="2400" inputmode="numeric"></div>
+<div><label for="knot">Knot</label><select id="knot"></select></div>
+<div><label for="sf">Safety factor</label><select id="sf"><option>4</option><option>6</option><option>8</option><option selected>10</option><option>12</option><option>15</option></select></div>
+</div>
+<div class="result" id="wll"></div>
+</div>
+<div class="card">
+<label>Head to head</label>
+<div class="row2">
+<div><select id="kA"></select></div>
+<div><select id="kB"></select></div>
+</div>
+<div class="result" id="cmp"></div>
+</div>
+<footer>Efficiency values are widely cited approximations - inspect and dress every knot. <a href="index.html">About</a></footer>
+</main>
+<script src="engine.js"></script>
+<script>
+var $=function(id){return document.getElementById(id)};
+var KNOTS=KnotLab.list();
+['knot','kA','kB'].forEach(function(id){
+  KNOTS.forEach(function(k){
+    var o=document.createElement('option');
+    o.value=k.id;o.textContent=k.name;
+    $(id).appendChild(o);
+  });
+});
+$('kA').value='figure8';$('kB').value='bowline';
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function rec(){
+  var t=$('task').value.trim();
+  var box=$('rec');
+  if(!t){box.classList.remove('show');return;}
+  var r=KnotLab.recommend(t);
+  box.classList.add('show');
+  if(!r.length){box.innerHTML='<span class="kv">No match - try words like loop, hitch, climbing, mooring, tent, cargo.</span>';return;}
+  var h='<div class="big">'+esc(r[0].name)+'</div><div class="kv">'+esc(r[0].note)+'</div>';
+  if(r.length>1){
+    h+='<table><tr><th>Knot</th><th>Strength kept</th><th>Difficulty</th></tr>';
+    r.slice(0,5).forEach(function(k){
+      h+='<tr><td>'+esc(k.name)+'</td><td>'+Math.round(k.eff*100)+'%</td><td>'+'\u2605'.repeat(k.difficulty)+'</td></tr>';
+    });
+    h+='</table>';
+  }
+  box.innerHTML=h;
+}
+function wll(){
+  var mbs=parseFloat($('mbs').value),sf=parseFloat($('sf').value),kid=$('knot').value;
+  var box=$('wll');
+  if(!(mbs>0)){box.classList.remove('show');return;}
+  var r=KnotLab.wll(mbs,kid,sf);
+  var k=KnotLab.byId(kid);
+  box.classList.add('show');
+  box.innerHTML='<div class="big">'+r+' kg working load</div><div class="kv">'+esc(k.name)+' keeps '+Math.round(k.eff*100)+'% of '+mbs+' kg = '+Math.round(mbs*k.eff)+' kg at the knot, divided by a '+sf+':1 safety factor. '+esc(k.note)+'</div>';
+}
+function cmp(){
+  var mbs=parseFloat($('mbs').value)||2400,sf=parseFloat($('sf').value)||10;
+  var r=KnotLab.compare(mbs,$('kA').value,$('kB').value,sf);
+  var box=$('cmp');
+  if(!r){box.classList.remove('show');return;}
+  box.classList.add('show');
+  box.innerHTML='<div class="big">'+esc(r.strongerWll===r.a.id?r.a.name:r.b.name)+' holds more</div>'+
+   '<div class="kv">'+esc(r.a.name)+': '+r.a.wll+' kg vs '+esc(r.b.name)+': '+r.b.wll+' kg (on '+mbs+' kg rope at '+sf+':1). Efficiency differs by '+r.deltaPct+' points.</div>';
+}
+var examples=['climbing tie in','join two ropes','tent guy line','mooring a boat','ascend a rope','lash cargo down'];
+examples.forEach(function(e){
+  var b=document.createElement('button');
+  b.className='chip';b.textContent=e;
+  b.onclick=function(){$('task').value=e;rec();};
+  $('chips').appendChild(b);
+});
+$('task').addEventListener('input',rec);
+['mbs','sf','knot'].forEach(function(i){$(i).addEventListener('input',wll);$(i).addEventListener('change',wll);});
+['kA','kB'].forEach(function(i){$(i).addEventListener('change',cmp);});
+wll();cmp();
+</script>
+</body>
+</html>
