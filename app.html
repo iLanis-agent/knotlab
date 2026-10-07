@@ -31,7 +31,10 @@ td,th{padding:6px 4px;text-align:left;border-bottom:1px solid #e8dfce}
 <body>
 <main>
 <h1>KnotLab</h1>
-<p class="sub">Find the right knot and what it safely holds</p>
+<p class="sub">Compare knots with illustrative load estimates</p>
+<div class="card" style="background:#fbe9e7;border:1.5px solid #e0a49b">
+<p class="kv" style="color:#8a2c1c;margin-top:0"><strong>Safety note:</strong> all numbers here are illustrative static estimates only. They are not safe load ratings and must not be used for climbing, rescue, lifting or any life-safety decision. Knot strength varies with rope material, construction, condition and loading. Always follow the rope and equipment manufacturer's instructions and get qualified training.</p>
+</div>
 <div class="card">
 <label for="task">What are you doing?</label>
 <input id="task" placeholder="e.g. climbing tie in, tent guy line, lash cargo" autocomplete="off">
@@ -55,7 +58,7 @@ td,th{padding:6px 4px;text-align:left;border-bottom:1px solid #e8dfce}
 </div>
 <div class="result" id="cmp"></div>
 </div>
-<footer>Efficiency values are widely cited approximations - inspect and dress every knot. <a href="index.html">About</a></footer>
+<footer>Illustrative static estimates only - not for climbing, rescue, lifting or life-safety decisions. Follow manufacturer instructions and qualified training. <a href="index.html">About</a></footer>
 </main>
 <script src="engine.js"></script>
 <script>
@@ -94,7 +97,7 @@ function wll(){
   var r=KnotLab.wll(mbs,kid,sf);
   var k=KnotLab.byId(kid);
   box.classList.add('show');
-  box.innerHTML='<div class="big">'+r+' kg working load</div><div class="kv">'+esc(k.name)+' keeps '+Math.round(k.eff*100)+'% of '+mbs+' kg = '+Math.round(mbs*k.eff)+' kg at the knot, divided by a '+sf+':1 safety factor. '+esc(k.note)+'</div>';
+  box.innerHTML='<div class="big">'+r+' kg illustrative estimate</div><div class="kv">'+esc(k.name)+' keeps '+Math.round(k.eff*100)+'% of '+mbs+' kg = '+Math.round(mbs*k.eff)+' kg at the knot, divided by a '+sf+':1 safety factor. '+esc(k.note)+'</div><div class="kv"><strong>Illustrative static estimate only - not a safe load rating.</strong></div>';
 }
 function cmp(){
   var mbs=parseFloat($('mbs').value)||2400,sf=parseFloat($('sf').value)||10;
@@ -102,8 +105,8 @@ function cmp(){
   var box=$('cmp');
   if(!r){box.classList.remove('show');return;}
   box.classList.add('show');
-  box.innerHTML='<div class="big">'+esc(r.strongerWll===r.a.id?r.a.name:r.b.name)+' holds more</div>'+
-   '<div class="kv">'+esc(r.a.name)+': '+r.a.wll+' kg vs '+esc(r.b.name)+': '+r.b.wll+' kg (on '+mbs+' kg rope at '+sf+':1). Efficiency differs by '+r.deltaPct+' points.</div>';
+  box.innerHTML='<div class="big">'+esc(r.strongerWll===r.a.id?r.a.name:r.b.name)+' keeps more strength (illustrative)</div>'+
+   '<div class="kv">'+esc(r.a.name)+': '+r.a.wll+' kg vs '+esc(r.b.name)+': '+r.b.wll+' kg (on '+mbs+' kg rope at '+sf+':1). Efficiency differs by '+r.deltaPct+' points. Illustrative estimates only.</div>';
 }
 var examples=['climbing tie in','join two ropes','tent guy line','mooring a boat','ascend a rope','lash cargo down'];
 examples.forEach(function(e){
