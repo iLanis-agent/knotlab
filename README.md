@@ -14,7 +14,9 @@ Figure-8 Loop, Bowline, Alpine Butterfly, Double Fisherman, Sheet Bend, Clove Hi
 
 ## Data and limits
 
-Efficiency values (residual rope strength at the knot) are widely cited approximations from climbing and sailing references. Real results vary with rope construction, dressing, and loading dynamics. This is an educational tool - always inspect knots and follow the rope manufacturer's working-load guidance.
+Efficiency values (residual rope strength at the knot) are widely cited approximations from climbing and sailing references. Real results vary materially with rope material, construction, condition, load direction and dynamics - see for example EDELRID's knowledge base on strength reduction of textile materials by knots (edelrid.com) and Petzl's product instructions.
+
+**All numbers this tool shows are illustrative static estimates only. They are not safe load ratings and must not be used for climbing, rescue, lifting or any life-safety decision. Always follow the rope and equipment manufacturer's instructions and get qualified training.**
 
 ## Development
 
